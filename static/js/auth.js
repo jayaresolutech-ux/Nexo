@@ -37,11 +37,23 @@ const Auth = (() => {
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
     });
-    const result = await response.json().catch(() => ({}));
+    const result = await jsonResponse(response, 'O servidor de autenticação');
     if (!response.ok) {
       throw new Error(result.msg || result.message || result.error_description || result.error || 'Falha na autenticação.');
     }
     return result;
+  }
+
+  async function jsonResponse(response, serverName) {
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      throw new Error(`${serverName} não retornou JSON. Verifique se a URL configurada aponta para o serviço correto.`);
+    }
+    try {
+      return await response.json();
+    } catch {
+      throw new Error(`${serverName} retornou uma resposta JSON inválida.`);
+    }
   }
 
   function displayLogin(error = '') {
@@ -145,8 +157,8 @@ const Auth = (() => {
   async function start(ready) {
     onReady = ready;
     const response = await fetch('/api/config', {cache: 'no-store'});
-    if (!response.ok) throw new Error('Não foi possível carregar a configuração do sistema.');
-    config = await response.json();
+    if (!response.ok) throw new Error(`Não foi possível carregar a configuração do sistema (HTTP ${response.status}).`);
+    config = await jsonResponse(response, 'A API do Mini ERP');
     if (!enabled()) {
       await continueToApp();
       return;

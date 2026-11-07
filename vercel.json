@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://mini-erp.onrender.com/api/:path*"
+      "destination": "https://nexo-4ulp.onrender.com/api/:path*"
     }
   ]
 }

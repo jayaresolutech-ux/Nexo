@@ -103,4 +103,7 @@ async function iniciar() {
   window.addEventListener('hashchange', rotear);
   rotear();
 }
-Auth.start(iniciar).catch(erro);
+Auth.start(iniciar).catch(e => {
+  const mensagem = e.message || String(e);
+  $('#view').innerHTML = `<div class="card" role="alert"><h2>Não foi possível iniciar o Mini ERP</h2><p>${esc(mensagem)}</p></div>`;
+});
