@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+.venv/
+node_modules/
+dist/
+__pycache__/
+*.py[cod]
+.vercel/
+dados/
+licenca.dat
+gerar_licenca.py
+instalador/*.exe
+.vercel_python_packages/
+uv.lock

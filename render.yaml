@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: mini-erp
+    runtime: python
+    plan: free
+    buildCommand: npm ci --prefix web && npm run build --prefix web && pip install -r requirements.txt
+    startCommand: python -m uvicorn app:app --host 0.0.0.0 --port $PORT --proxy-headers
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: SUPABASE_URL
+        value: https://polwremxhouebxrjxpgn.supabase.co
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_JWKS_URL
+        value: https://polwremxhouebxrjxpgn.supabase.co/auth/v1/.well-known/jwks.json

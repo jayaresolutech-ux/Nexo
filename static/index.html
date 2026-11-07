@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini ERP - Gestão Empresarial</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<section id="auth-screen" hidden></section>
+<div id="app">
+  <aside id="menu">
+    <div class="brand"><span class="brand-ico">▦</span><div><b>MINI ERP</b><small>Gestão Empresarial</small></div></div>
+    <nav id="nav"></nav>
+    <div class="menu-foot">
+      <button class="btn-sair" id="fechar-sistema" title="Desliga o Mini ERP com segurança"><span class="ico-sair">⏻</span><span class="t"> Fechar sistema</span></button>
+      <div>v1.0 · sistema de gestão</div>
+    </div>
+  </aside>
+  <main>
+    <header id="topbar">
+      <div><div class="top-title">MINI ERP - GESTÃO EMPRESARIAL</div><div id="empresa" class="top-sub"></div></div>
+      <div class="top-right">
+        <input id="busca" type="search" placeholder="🔍 Consulta rápida (cliente, produto, venda...)" autocomplete="off">
+        <div id="usuario" class="user"></div>
+        <button class="btn" id="sair-conta" hidden>Sair</button>
+      </div>
+    </header>
+    <section id="view"></section>
+  </main>
+</div>
+<div id="modal-root"></div>
+<div id="toast"></div>
+<script src="js/core.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/cadastros.js"></script>
+<script src="js/documentos.js"></script>
+<script src="js/gestao.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
