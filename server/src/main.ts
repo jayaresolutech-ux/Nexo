@@ -1,27 +1,10 @@
 import { createServer } from 'node:http';
-import { createApplication } from './application.js';
-import { SupabaseAuth } from './auth.js';
-import { createDatabasePool } from './database.js';
-
-function required(name: string): string {
-  const value = process.env[name]?.trim();
-  if (!value) throw new Error(`Configure ${name}.`);
-  return value;
-}
+import { createRuntime } from './runtime.js';
 
 async function main(): Promise<void> {
-  const supabaseUrl = required('SUPABASE_URL').replace(/\/+$/, '');
-  const auth = new SupabaseAuth({
-    supabaseUrl,
-    jwksUrl: process.env.SUPABASE_JWKS_URL?.trim() || `${supabaseUrl}/auth/v1/.well-known/jwks.json`,
-    secretKey: required('SUPABASE_SECRET_KEY'),
-  });
-  const publishableKey = required('SUPABASE_PUBLISHABLE_KEY');
   const port = Number(process.env.PORT ?? '8765');
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT inválida.');
-  const pool = createDatabasePool();
-  await pool.query('SELECT 1');
-  const application = createApplication(pool, auth, { supabaseUrl, publishableKey });
+  const { application, pool } = await createRuntime();
   const server = createServer(async (req, res) => {
     try {
       const chunks: Buffer[] = [];

@@ -1,11 +1,27 @@
 # Mini ERP
 
 ERP web em migração para uma arquitetura de navegador e backend escalável. A versão hospedada usa
-React, TypeScript e Vite no cliente, FastAPI/ASGI no servidor e PostgreSQL do Supabase como fonte de
+React, TypeScript e Vite no cliente, Node.js/TypeScript no servidor (função serverless da Vercel) e PostgreSQL do Supabase como fonte de
 verdade. As telas existentes são servidas por um adaptador de compatibilidade enquanto são portadas
 para componentes React, preservando os módulos durante a transição.
 
 ## Migração Node.js em andamento
+
+### Publicação Vercel em validação
+
+O frontend e uma função Node compartilhada em `api/[...path].ts` podem ser publicados juntos na Vercel,
+sem proxy para outro serviço. Configure no projeto Vercel, nos ambientes **Preview** e **Production**,
+`SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` e `DATABASE_URL`; opcionalmente
+configure `SUPABASE_JWKS_URL`. A URL do banco deve usar o pooler PostgreSQL de sessão do Supabase
+e TLS. Guarde senha e chave secret apenas nas variáveis protegidas da Vercel; nunca no código.
+Configure `DB_POOL_SIZE=1` e `DB_MAX_OVERFLOW=1` para reduzir conexões por instância e dimensione
+o banco para a concorrência total. Faça um novo deploy após alterar variáveis e valide primeiro em
+Preview: `/api/health`, `/api/config`, login, escrita e relatórios. Não carregue demonstração nem
+apague dados reais durante essa verificação.
+
+A Vercel limita o tamanho das requisições e respostas das funções e o tempo de execução; backups
+grandes e cargas de demonstração podem ultrapassar esses limites. Use também os backups próprios do
+Supabase. A versão Vercel permanece em validação até a verificação autenticada e de persistência.
 
 Os módulos de autenticação, conexões PostgreSQL e rotas de contas a pagar e a receber, cadastros,
 estoque, busca, vendas, compras, fichas, dashboard, relatórios, parâmetros, backup, limpeza e carga de demonstração em TypeScript estão em
@@ -13,28 +29,20 @@ estoque, busca, vendas, compras, fichas, dashboard, relatórios, parâmetros, ba
 exigem `TEST_DATABASE_URL` para um banco PostgreSQL **vazio e descartável** chamado `nexo_finance_test`;
 sem essa variável, o teste é ignorado. O CI cria um banco isolado para executá-lo.
 
-O servidor Node experimental pode ser compilado com `npm run build:server` e iniciado com
+O servidor Node pode ser compilado com `npm run build:server` e iniciado com
 `npm run start:server`, com as variáveis Supabase e `DATABASE_URL` configuradas. Sua API não serve o
-frontend; para experimentos locais use o cliente Vite com proxy para a porta da API. O servidor Node
-está preparado para publicação, mas a troca em produção exige sincronizar o Blueprint Render e validar a
-conexão Supabase e os fluxos autenticados após o deploy.
+frontend; para experimentos locais use o cliente Vite com proxy para a porta da API. Na Vercel, a mesma
+lógica roda em `api/[...path].ts`. Valide a conexão Supabase e os fluxos autenticados após cada deploy.
 Backup, limpeza e carga de demonstração estão disponíveis para **todos os usuários ativos**, conforme
 a opção escolhida; a limpeza apaga todos os dados e parâmetros, e a demonstração os substitui
 atomicamente por dados fictícios. No backup, valores numéricos com mais
-de 15 dígitos são exportados como texto para evitar perda de precisão no Excel. Não execute simultaneamente os dois backends
-contra o mesmo banco: seus mecanismos de concorrência não se coordenam. Não remova os arquivos Python
-sem concluir as verificações de produção. Preserve os dados do Supabase.
+de 15 dígitos são exportados como texto para evitar perda de precisão no Excel. Preserve os dados do Supabase.
 
 ## Desenvolvimento local
 
-- Aplicação legada: `python3 app.py` (ou `./iniciar.sh` / `iniciar.bat`), abre em `http://127.0.0.1:8765`.
-- Cliente Web: inicie o backend em um terminal (`python3 app.py --sem-navegador`) e rode
-  `npm ci --prefix web` e `npm run dev --prefix web` em outro; Vite atende `http://127.0.0.1:5173`
-  e encaminha `/api` ao backend.
-- Verificações frontend: `npm run typecheck --prefix web` e `npm run build --prefix web`.
-
-Sem configuração Supabase, o modo local continua usando uma planilha `.xlsx` por tabela em `dados/`.
-Para começar sem dados de demonstração: `python3 app.py --vazio`.
+- Backend: `npm run build:server` e `npm run start:server` (requer as variáveis Supabase e `DATABASE_URL`).
+- Cliente Web: rode `npm ci --prefix web` e `npm run dev --prefix web`; o Vite atende `http://127.0.0.1:5173`.
+- Verificações: `npm run test:server`, `npm run typecheck --prefix web` e `npm run build --prefix web`.
 
 ## Supabase e publicação
 
@@ -43,23 +51,16 @@ Para começar sem dados de demonstração: `python3 app.py --vazio`.
 2. Crie os usuários autorizados no Supabase Auth e desative o cadastro público. Todas as contas deste
    projeto compartilham os dados da mesma empresa.
 3. Configure `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, `SUPABASE_JWKS_URL` e
-   `DATABASE_URL` no ambiente do backend Render. Use uma chave `secret` Supabase recém-rotacionada para
+   `DATABASE_URL` nas variáveis protegidas do projeto Vercel. Use uma chave `secret` Supabase recém-rotacionada para
    `SUPABASE_SECRET_KEY`; ela permite ao backend confirmar o estado atual da conta. Nunca a inclua no
    frontend nem em arquivos públicos. `DATABASE_URL` deve ser a URI PostgreSQL do Supabase (preferencialmente
    o pooler de sessão), com a senha protegida como segredo. A chave publishable pode estar no cliente; a
    senha do banco nunca.
 4. O repositório [`jayaresolutech-ux/Nexo`](https://github.com/jayaresolutech-ux/Nexo) está conectado ao
    projeto Vercel `nexo`, com framework Vite e diretório raiz do repositório. Instalação, build, publicação
-   de `dist/` e proxy `/api/*` para o serviço `nexo-4ulp.onrender.com` estão definidos em
-   [`vercel.json`](vercel.json). Se o Render atribuir outro domínio ao serviço, atualize o destino do proxy.
-5. Sincronize o Blueprint [`render.yaml`](render.yaml) para alterar o runtime do serviço Render para Node.js
-   e configure `DATABASE_URL`,
-   `SUPABASE_PUBLISHABLE_KEY` e `SUPABASE_SECRET_KEY` nos segredos do serviço. Gere uma nova chave secreta
-   Supabase e mantenha-a apenas no ambiente seguro do backend. Não use chaves copiadas de arquivos de
-   configuração antigos. Depois do deploy, configure Site URL e Redirect URLs no Supabase Auth com o domínio
-   Vercel. Confirme no painel Render que o serviço existente usa o repositório, a branch `main`, o runtime Node,
-   o comando de build `npm ci && npm run build:server` e o comando de inicialização `npm run start:server`.
-   O cliente estático da Vercel não precisa receber segredos do Supabase nem do banco.
+   de `dist/` e a função `api/[...path].ts` estão definidos em [`vercel.json`](vercel.json) e na pasta `api/`.
+   Depois do deploy, configure Site URL e Redirect URLs no Supabase Auth com o domínio Vercel.
+   O cliente estático não precisa receber segredos do Supabase nem do banco.
 
 Para cada requisição protegida, o backend valida o JWT e consulta o Supabase Auth Admin API sem cache. Usuários
 banidos/suspensos ou removidos têm acesso negado imediatamente; se o Supabase não puder confirmar o estado,
@@ -77,13 +78,5 @@ sobrescrever silenciosamente os dados de outro usuário.
 
 A store PostgreSQL ainda carrega tabelas completas para manter compatibilidade com as telas atuais; isso
 não é adequado para grandes volumes. A próxima etapa da migração deve substituir esses carregamentos por
-consultas paginadas e filtros no banco. O Blueprint Render está no plano gratuito para avaliação; escolha
-um plano com disponibilidade contínua antes de usar em produção.
+consultas paginadas e filtros no banco.
 
-## Licença e ferramentas do fornecedor
-
-O modo local mantém licenciamento opcional separado do login Supabase. O segredo de assinatura e o URL de
-registro agora são lidos de `MINIERP_LICENCA_SECRET` e `MINIERP_LICENCA_URL`; crie um novo segredo aleatório
-para uso local e não o armazene no Git. A mudança invalida licenças locais criadas com a chave embutida
-anteriormente; gere novamente as chaves que ainda forem necessárias. A ferramenta interna `gerar_licenca.py`
-é ignorada pelo Git e não deve ser distribuída.

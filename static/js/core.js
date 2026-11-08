@@ -12,17 +12,17 @@ const badge = t => `<span class="badge ${esc(t)}">${esc(t)}</span>`;
 async function api(metodo, url, corpo, arquivo = false) {
   const request = async () => {
     const headers = {'Content-Type': 'application/json'};
-    const token = window.Auth?.accessToken();
+    const token = Auth.accessToken();
     if (token) headers.Authorization = 'Bearer ' + token;
     return fetch(url, {method: metodo, headers,
       body: corpo === undefined ? undefined : JSON.stringify(corpo)});
   };
   let r = await request();
-  if (r.status === 401 && window.Auth?.enabled()) {
+  if (r.status === 401 && Auth.enabled()) {
     try {
-      await window.Auth.refresh();
+      await Auth.refresh();
     } catch (e) {
-      window.Auth.expire();
+      Auth.expire();
       throw e;
     }
     r = await request();
@@ -30,11 +30,11 @@ async function api(metodo, url, corpo, arquivo = false) {
   if (r.ok && arquivo) return r.blob();
   let dados = {};
   try { dados = await r.json(); } catch (e) { /* resposta sem JSON */ }
-  if (r.status === 401 && window.Auth?.enabled()) {
-    window.Auth.expire();
+  if (r.status === 401 && Auth.enabled()) {
+    Auth.expire();
   }
-  if (r.status === 403 && window.Auth?.enabled()) {
-    window.Auth.expire('Sua conta está inativa ou suspensa. Contate o administrador.');
+  if (r.status === 403 && Auth.enabled()) {
+    Auth.expire('Sua conta está inativa ou suspensa. Contate o administrador.');
   }
   if (!r.ok) throw new Error(dados.erro || 'Falha na requisição.');
   return dados;

@@ -5,7 +5,7 @@
     "node": "24.x"
   },
   "scripts": {
-    "build:server": "tsc -p server/tsconfig.json",
+    "build:server": "tsc -p server/tsconfig.json && tsc -p tsconfig.vercel.json",
     "start:server": "node dist-server/main.js",
     "test:server": "npm run build:server && node --test server/tests/*.test.js"
   },

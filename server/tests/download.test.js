@@ -11,7 +11,8 @@ test('downloads spreadsheets with the refreshed bearer token', async () => {
   let revoked = false;
   const link = { click() { clicked = true; }, remove() {} };
   const context = {
-    window: { Auth: { accessToken: () => token, enabled: () => true, refresh: async () => { token = 'fresh'; }, expire: () => assert.fail('session expired') } },
+    Auth: { accessToken: () => token, enabled: () => true, refresh: async () => { token = 'fresh'; }, expire: () => assert.fail('session expired') },
+    window: {},
     document: { createElement: () => link, body: { appendChild() {} } },
     URL: { createObjectURL: () => 'blob:test', revokeObjectURL: () => { revoked = true; } },
     setTimeout: fn => fn(),
