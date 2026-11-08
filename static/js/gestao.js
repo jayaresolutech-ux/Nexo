@@ -135,7 +135,10 @@ async function viewRelatorios(root) {
     if (aba === 'vendas') estado.agrupar = $('#agr', painel).value;
     const extra = aba === 'vendas' ? {agrupar: estado.agrupar} : {};
     try { $('#res', painel).innerHTML = renderRelatorio(await GET(qs(aba, extra))); } catch (e) { erro(e); }
-    $('#xls', painel).href = qs(aba, {...extra, formato: 'xlsx'});
+    $('#xls', painel).onclick = async e => {
+      e.preventDefault();
+      try { await baixarArquivo(qs(aba, {...extra, formato: 'xlsx'}), `${aba}.xlsx`); } catch (e) { erro(e); }
+    };
   };
   $('#ok', painel).onclick = rodar; $('#prt', painel).onclick = () => window.print();
   $$('select,input', painel).forEach(el => el.onchange = rodar);
@@ -189,7 +192,7 @@ async function viewParametros(root) {
   let aba = 'empresa';
   const render = async () => {
     root.innerHTML = `<div class="pagehead"><div><h1>⚙️ Parâmetros</h1><p class="sub" style="margin:0">Dados da empresa, configurações, tabelas auxiliares, metas e orientações.</p></div></div>
-      <div class="tabs">${[['empresa', 'Dados da empresa'], ['metas', 'Metas e configurações'], ['categorias', 'Tabelas auxiliares'], ['dados', 'Banco de dados (planilhas)'], ['ajuda', 'Orientações']].map(([k, t]) => `<button data-t="${k}" class="${aba === k ? 'on' : ''}">${t}</button>`).join('')}</div><div id="aba"></div>`;
+      <div class="tabs">${[['empresa', 'Dados da empresa'], ['metas', 'Metas e configurações'], ['categorias', 'Tabelas auxiliares'], ['dados', 'Banco de dados'], ['ajuda', 'Orientações']].map(([k, t]) => `<button data-t="${k}" class="${aba === k ? 'on' : ''}">${t}</button>`).join('')}</div><div id="aba"></div>`;
     $$('.tabs button', root).forEach(b => b.onclick = () => { aba = b.dataset.t; render(); });
     const alvo = $('#aba', root), p = App.params;
     const salvar = campos => async () => { const r = await POST('/api/parametros', lerForm(alvo, campos)); App.params = r; App.cabecalho(); toast('Parâmetros salvos.', 'ok'); };
@@ -214,11 +217,13 @@ async function viewParametros(root) {
       });
     } else if (aba === 'dados') {
       const r = await GET('/api/admin/arquivos');
-      alvo.innerHTML = `<div class="hint">As planilhas abaixo são o banco de dados do Mini ERP. Pasta: <b>${esc(r.pasta)}</b><br>Você pode abri-las no Excel/LibreOffice para consultar (feche-as antes de salvar no sistema). Alterações feitas nas planilhas são lidas automaticamente.</div>
-        ${tabela([{key: 'arquivo', label: 'Planilha'}, {key: 'tabela', label: 'Conteúdo'}, {key: 'linhas', label: 'Registros', tipo: 'int'}, {key: 'tamanho', label: 'Tamanho', render: x => fnum(x.tamanho / 1024, 1) + ' KB'}], r.arquivos)}
-        <div class="toolbar mt"><a class="btn" href="/api/admin/backup">⬇ Baixar backup (.zip)</a><button class="btn" id="demo">Carregar dados de demonstração</button><button class="btn danger" id="limpar">Apagar todos os dados</button></div>`;
-      $('#demo', alvo).onclick = async () => { if (await confirmar('Isso SUBSTITUI todos os dados atuais por dados de demonstração. Continuar?', 'Substituir')) { try { await POST('/api/admin/demo'); toast('Dados de demonstração carregados.', 'ok'); render(); } catch (e) { erro(e); } } };
-      $('#limpar', alvo).onclick = async () => { if (await confirmar('Apagar TODOS os cadastros e movimentos? Faça um backup antes. Esta ação não pode ser desfeita.', 'Apagar tudo')) { try { await POST('/api/admin/limpar'); toast('Banco de dados limpo.', 'ok'); render(); } catch (e) { erro(e); } } };
+      const postgres = r.armazenamento === 'postgresql';
+      alvo.innerHTML = `<div class="hint">${postgres ? 'Os dados estão no PostgreSQL. O backup exporta as tabelas em planilhas; alterar as planilhas exportadas não altera o banco. Todos os usuários ativos podem baixar o backup e apagar os dados.' : `As planilhas abaixo são o banco de dados do Mini ERP. Pasta: <b>${esc(r.pasta)}</b><br>Você pode abri-las no Excel/LibreOffice para consultar (feche-as antes de salvar no sistema). Alterações feitas nas planilhas são lidas automaticamente.`}</div>
+        ${tabela([{key: 'arquivo', label: 'Planilha'}, {key: 'tabela', label: 'Conteúdo'}, {key: 'linhas', label: 'Registros', tipo: 'int'}, ...(!postgres ? [{key: 'tamanho', label: 'Tamanho', render: x => fnum(x.tamanho / 1024, 1) + ' KB'}] : [])], r.arquivos)}
+        <div class="toolbar mt"><button class="btn" id="backup">⬇ Baixar backup (.zip)</button><button class="btn" id="demo">Carregar dados de demonstração</button><button class="btn danger" id="limpar">Apagar todos os dados</button></div>`;
+      $('#backup', alvo).onclick = async () => { try { await baixarArquivo('/api/admin/backup', `backup_miniERP_${hojeISO()}.zip`); } catch (e) { erro(e); } };
+      $('#demo', alvo).onclick = async () => { if (await confirmar('Isso SUBSTITUI todos os dados atuais por dados de demonstração. Faça um backup antes. Continuar?', 'Substituir')) { try { await POST('/api/admin/demo'); App.params = (await GET('/api/bootstrap')).params; App.cabecalho(); toast('Dados de demonstração carregados.', 'ok'); render(); } catch (e) { erro(e); } } };
+      $('#limpar', alvo).onclick = async () => { if (await confirmar('Apagar TODOS os cadastros e movimentos? Faça um backup antes. Esta ação não pode ser desfeita.', 'Apagar tudo')) { try { await POST('/api/admin/limpar'); App.params = (await GET('/api/bootstrap')).params; App.cabecalho(); toast('Banco de dados limpo.', 'ok'); render(); } catch (e) { erro(e); } } };
     } else {
       alvo.innerHTML = `<div class="card" style="max-width:820px;line-height:1.7"><h2>Como usar o Mini ERP</h2><ol>
         <li><b>Parâmetros:</b> informe os dados da empresa, metas e o saldo inicial de caixa.</li>

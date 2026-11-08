@@ -1,6 +1,28 @@
 {
   "private": true,
+  "type": "module",
   "engines": {
     "node": "24.x"
+  },
+  "scripts": {
+    "build:server": "tsc -p server/tsconfig.json",
+    "start:server": "node dist-server/main.js",
+    "test:server": "npm run build:server && node --test server/tests/*.test.js"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "jose": "^6.1.0",
+    "jszip": "^3.10.1",
+    "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.15.0",
+    "typescript": "^5.8.3"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "^11.1.1"
+    }
   }
 }

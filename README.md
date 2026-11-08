@@ -5,6 +5,26 @@ React, TypeScript e Vite no cliente, FastAPI/ASGI no servidor e PostgreSQL do Su
 verdade. As telas existentes são servidas por um adaptador de compatibilidade enquanto são portadas
 para componentes React, preservando os módulos durante a transição.
 
+## Migração Node.js em andamento
+
+Os módulos de autenticação, conexões PostgreSQL e rotas de contas a pagar e a receber, cadastros,
+estoque, busca, vendas, compras, fichas, dashboard, relatórios, parâmetros, backup, limpeza e carga de demonstração em TypeScript estão em
+`server/`; valide-os com `npm ci` e `npm run test:server`. Os testes de integração
+exigem `TEST_DATABASE_URL` para um banco PostgreSQL **vazio e descartável** chamado `nexo_finance_test`;
+sem essa variável, o teste é ignorado. O CI cria um banco isolado para executá-lo.
+
+O servidor Node experimental pode ser compilado com `npm run build:server` e iniciado com
+`npm run start:server`, com as variáveis Supabase e `DATABASE_URL` configuradas. Sua API não serve o
+frontend; para experimentos locais use o cliente Vite com proxy para a porta da API. O servidor Node
+está preparado para publicação, mas a troca em produção exige sincronizar o Blueprint Render e validar a
+conexão Supabase e os fluxos autenticados após o deploy.
+Backup, limpeza e carga de demonstração estão disponíveis para **todos os usuários ativos**, conforme
+a opção escolhida; a limpeza apaga todos os dados e parâmetros, e a demonstração os substitui
+atomicamente por dados fictícios. No backup, valores numéricos com mais
+de 15 dígitos são exportados como texto para evitar perda de precisão no Excel. Não execute simultaneamente os dois backends
+contra o mesmo banco: seus mecanismos de concorrência não se coordenam. Não remova os arquivos Python
+sem concluir as verificações de produção. Preserve os dados do Supabase.
+
 ## Desenvolvimento local
 
 - Aplicação legada: `python3 app.py` (ou `./iniciar.sh` / `iniciar.bat`), abre em `http://127.0.0.1:8765`.
@@ -30,13 +50,16 @@ Para começar sem dados de demonstração: `python3 app.py --vazio`.
    senha do banco nunca.
 4. O repositório [`jayaresolutech-ux/Nexo`](https://github.com/jayaresolutech-ux/Nexo) está conectado ao
    projeto Vercel `nexo`, com framework Vite e diretório raiz do repositório. Instalação, build, publicação
-   de `dist/` e proxy `/api/*` para o serviço `mini-erp.onrender.com` estão definidos em
+   de `dist/` e proxy `/api/*` para o serviço `nexo-4ulp.onrender.com` estão definidos em
    [`vercel.json`](vercel.json). Se o Render atribuir outro domínio ao serviço, atualize o destino do proxy.
-5. Publique o backend pelo Blueprint [`render.yaml`](render.yaml) e configure `DATABASE_URL`,
+5. Sincronize o Blueprint [`render.yaml`](render.yaml) para alterar o runtime do serviço Render para Node.js
+   e configure `DATABASE_URL`,
    `SUPABASE_PUBLISHABLE_KEY` e `SUPABASE_SECRET_KEY` nos segredos do serviço. Gere uma nova chave secreta
    Supabase e mantenha-a apenas no ambiente seguro do backend. Não use chaves copiadas de arquivos de
    configuração antigos. Depois do deploy, configure Site URL e Redirect URLs no Supabase Auth com o domínio
-   Vercel. O cliente estático da Vercel não precisa receber segredos do Supabase nem do banco.
+   Vercel. Confirme no painel Render que o serviço existente usa o repositório, a branch `main`, o runtime Node,
+   o comando de build `npm ci && npm run build:server` e o comando de inicialização `npm run start:server`.
+   O cliente estático da Vercel não precisa receber segredos do Supabase nem do banco.
 
 Para cada requisição protegida, o backend valida o JWT e consulta o Supabase Auth Admin API sem cache. Usuários
 banidos/suspensos ou removidos têm acesso negado imediatamente; se o Supabase não puder confirmar o estado,

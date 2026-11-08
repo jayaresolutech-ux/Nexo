@@ -1,14 +1,12 @@
 services:
   - type: web
     name: mini-erp
-    runtime: python
+    runtime: node
     plan: free
-    buildCommand: npm ci --prefix web && npm run build --prefix web && pip install -r requirements.txt
-    startCommand: python -m uvicorn app:app --host 0.0.0.0 --port $PORT --proxy-headers
+    buildCommand: npm ci && npm run build:server
+    startCommand: npm run start:server
     healthCheckPath: /api/health
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.12.10
       - key: SUPABASE_URL
         value: https://polwremxhouebxrjxpgn.supabase.co
       - key: SUPABASE_PUBLISHABLE_KEY

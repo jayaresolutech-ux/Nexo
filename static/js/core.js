@@ -9,7 +9,7 @@ const fdata = d => d ? String(d).slice(0, 10).split('-').reverse().join('/') : '
 const hojeISO = () => new Date().toISOString().slice(0, 10);
 const badge = t => `<span class="badge ${esc(t)}">${esc(t)}</span>`;
 
-async function api(metodo, url, corpo) {
+async function api(metodo, url, corpo, arquivo = false) {
   const request = async () => {
     const headers = {'Content-Type': 'application/json'};
     const token = window.Auth?.accessToken();
@@ -27,6 +27,7 @@ async function api(metodo, url, corpo) {
     }
     r = await request();
   }
+  if (r.ok && arquivo) return r.blob();
   let dados = {};
   try { dados = await r.json(); } catch (e) { /* resposta sem JSON */ }
   if (r.status === 401 && window.Auth?.enabled()) {
@@ -42,6 +43,17 @@ const GET = url => api('GET', url);
 const POST = (url, b = {}) => api('POST', url, b);
 const PUT = (url, b = {}) => api('PUT', url, b);
 const DEL = url => api('DELETE', url);
+async function baixarArquivo(url, nome) {
+  const blob = await api('GET', url, undefined, true);
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = objectUrl;
+  link.download = nome;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+}
 
 function toast(msg, tipo = '') {
   const el = document.createElement('div');
