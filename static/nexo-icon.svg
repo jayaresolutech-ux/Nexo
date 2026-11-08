@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="nexo">
+  <rect width="64" height="64" rx="16" fill="#2563EB"/>
+  <path d="M20 46V18L44 46V18" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="20" cy="18" r="5.5" fill="#FFFFFF"/>
+  <circle cx="44" cy="18" r="5.5" fill="#22C3E6"/>
+  <circle cx="20" cy="46" r="5.5" fill="#22C3E6"/>
+  <circle cx="44" cy="46" r="5.5" fill="#FFFFFF"/>
+</svg>

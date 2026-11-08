@@ -52,12 +52,12 @@ function LegacyERP() {
       <div id="app">
         <aside id="menu">
           <div className="brand">
-            <span className="brand-ico">▦</span>
-            <div><b>MINI ERP</b><small>Gestão Empresarial</small></div>
+            <img className="brand-ico" src="/nexo-icon.svg" alt="" />
+            <div><b>nexo</b><small>Gestão empresarial conectada</small></div>
           </div>
           <nav id="nav" />
           <div className="menu-foot">
-            <button className="btn-sair" id="fechar-sistema" title="Desliga o Mini ERP com segurança">
+            <button className="btn-sair" id="fechar-sistema" title="Desliga o Nexo com segurança">
               <span className="ico-sair">⏻</span><span className="t"> Fechar sistema</span>
             </button>
             <div>v2.0 · sistema de gestão</div>
@@ -66,7 +66,7 @@ function LegacyERP() {
         <main>
           <header id="topbar">
             <div>
-              <div className="top-title">MINI ERP - GESTÃO EMPRESARIAL</div>
+              <div className="top-title">NEXO - GESTÃO EMPRESARIAL</div>
               <div id="empresa" className="top-sub" />
             </div>
             <div className="top-right">
@@ -85,6 +85,6 @@ function LegacyERP() {
 }
 
 const rootElement = document.getElementById('root');
-if (!rootElement) throw new Error('Elemento raiz do Mini ERP não encontrado.');
+if (!rootElement) throw new Error('Elemento raiz do Nexo não encontrado.');
 
 createRoot(rootElement).render(<LegacyERP />);

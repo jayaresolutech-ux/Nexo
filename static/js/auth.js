@@ -59,12 +59,12 @@ const Auth = (() => {
   function displayLogin(error = '') {
     $('#app').hidden = true;
     $('#auth-screen').hidden = false;
-    const title = passwordSetup ? 'Defina sua senha' : 'Acessar o Mini ERP';
+    const title = passwordSetup ? 'Defina sua senha' : 'Acessar o Nexo';
     const description = passwordSetup
       ? 'Crie uma senha para concluir a ativação da sua conta.'
       : 'Entre com o e-mail e a senha da sua conta.';
     $('#auth-screen').innerHTML = `<div class="auth-card">
-      <div class="brand-ico">▦</div>
+      <img class="brand-ico" src="nexo-icon.svg" alt="">
       <h1>${title}</h1>
       <p class="sub">${description}</p>
       <form id="auth-form">
@@ -158,7 +158,7 @@ const Auth = (() => {
     onReady = ready;
     const response = await fetch('/api/config', {cache: 'no-store'});
     if (!response.ok) throw new Error(`Não foi possível carregar a configuração do sistema (HTTP ${response.status}).`);
-    config = await jsonResponse(response, 'A API do Mini ERP');
+    config = await jsonResponse(response, 'A API do Nexo');
     if (!enabled()) {
       await continueToApp();
       return;

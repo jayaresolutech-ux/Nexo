@@ -1,4 +1,4 @@
-# Mini ERP
+# Nexo
 
 ERP web em migração para uma arquitetura de navegador e backend escalável. A versão hospedada usa
 React, TypeScript e Vite no cliente, Node.js/TypeScript no servidor (função serverless da Vercel) e PostgreSQL do Supabase como fonte de

@@ -12,7 +12,7 @@ function imprimirDocumento(tipo, doc) {
   }).join('');
   const w = window.open('', '_blank');
   if (!w) { toast('Permita pop-ups para imprimir.', 'err'); return; }
-  w.document.write(`<html><head><meta charset="utf-8"><title>${D.titulo} #${doc.id}</title><style>body{font-family:Arial,sans-serif;margin:40px;color:#1c2740}table{width:100%;border-collapse:collapse;margin-top:18px}th{background:#0b1f4d;color:#fff;text-align:left;padding:8px}td{padding:8px;border-bottom:1px solid #ddd}h1{margin:0}.r{text-align:right}</style></head><body>
+  w.document.write(`<html><head><meta charset="utf-8"><title>${D.titulo} #${doc.id}</title><style>body{font-family:Arial,sans-serif;margin:40px;color:#1c2740}table{width:100%;border-collapse:collapse;margin-top:18px}th{background:#0B1F4D;color:#fff;text-align:left;padding:8px}td{padding:8px;border-bottom:1px solid #ddd}h1{margin:0}.r{text-align:right}</style></head><body>
     <h1>${esc(p.empresa_nome)}</h1><div>${esc(p.empresa_cnpj)} ${esc(p.empresa_endereco)} ${esc(p.empresa_telefone)}</div>
     <h2>${V && doc.status === 'Orçamento' ? 'ORÇAMENTO' : D.titulo.toUpperCase()} Nº ${doc.id}</h2>
     <div><b>${D.parte}:</b> ${esc(doc[D.campoNome])} &nbsp; <b>Data:</b> ${fdata(doc.data)} &nbsp; <b>Status:</b> ${esc(doc.status)}</div>

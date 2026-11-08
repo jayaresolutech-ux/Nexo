@@ -33,7 +33,7 @@ function telaLicenca(b) {
   $('#busca').disabled = true;
   $('#view').innerHTML = `<div class="card" style="max-width:560px;margin:30px auto">
     <h1 style="margin-top:0">🔑 Ativação da licença</h1>
-    <p class="sub">${b.copia ? '<b style="color:#c0392b">Esta cópia do Mini ERP não está licenciada para este computador.</b> ' : ''}Informe os dados da empresa e a chave recebida para liberar os módulos.</p>
+    <p class="sub">${b.copia ? '<b style="color:#C0392B">Esta cópia do Nexo não está licenciada para este computador.</b> ' : ''}Informe os dados da empresa e a chave recebida para liberar os módulos.</p>
     <div class="field"><label>Nome da empresa</label><input id="l_nome" autocomplete="off"></div>
     <div class="field"><label>CNPJ</label><input id="l_cnpj" placeholder="00.000.000/0000-00" maxlength="18" autocomplete="off"></div>
     <div class="field"><label>Chave de licença</label><input id="l_chave" placeholder="ERP-00000000000000-XXXX" autocomplete="off" style="text-transform:uppercase"></div>
@@ -54,12 +54,12 @@ function telaLicenca(b) {
 App.fechando = false;
 
 function telaSistemaEncerrado() {
-  document.body.innerHTML = '<div style="display:grid;place-items:center;height:100vh;font-family:inherit;color:#1c2740;text-align:center">' +
-    '<div><h1 style="color:#0b1f4d">Mini ERP encerrado com segurança</h1><p>O servidor local foi desligado. Você já pode fechar esta aba.</p></div></div>';
+  document.body.innerHTML = '<div style="display:grid;place-items:center;height:100vh;font-family:inherit;color:#1E293B;text-align:center">' +
+    '<div><h1 style="color:#0B1F4D">Nexo encerrado com segurança</h1><p>O servidor local foi desligado. Você já pode fechar esta aba.</p></div></div>';
 }
 
 async function fecharSistema() {
-  if (!await confirmar('Deseja fechar o Mini ERP? O servidor local será desligado e esta aba deixará de funcionar.', 'Fechar sistema')) return;
+  if (!await confirmar('Deseja fechar o Nexo? O servidor local será desligado e esta aba deixará de funcionar.', 'Fechar sistema')) return;
   try {
     await POST('/api/sair');
   } catch (e) { return erro(e); }
@@ -86,7 +86,7 @@ async function iniciar() {
     }
   } catch (e) {
     if (Auth.enabled() && !Auth.accessToken()) return;
-    document.body.innerHTML = `<p style="padding:30px">${esc(e.message || 'Servidor do Mini ERP indisponível. Execute o app novamente.')}</p>`;
+    document.body.innerHTML = `<p style="padding:30px">${esc(e.message || 'Servidor do Nexo indisponível. Execute o app novamente.')}</p>`;
     return;
   }
   let t;
@@ -105,5 +105,5 @@ async function iniciar() {
 }
 Auth.start(iniciar).catch(e => {
   const mensagem = e.message || String(e);
-  $('#view').innerHTML = `<div class="card" role="alert"><h2>Não foi possível iniciar o Mini ERP</h2><p>${esc(mensagem)}</p></div>`;
+  $('#view').innerHTML = `<div class="card" role="alert"><h2>Não foi possível iniciar o Nexo</h2><p>${esc(mensagem)}</p></div>`;
 });

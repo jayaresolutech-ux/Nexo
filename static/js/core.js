@@ -170,7 +170,7 @@ function ligarLinhas(root, rows, fn) {
 }
 
 /* ---------- gráficos SVG ---------- */
-const CORES = ['#1b5de0', '#12805c', '#c97a0a', '#7b4fd0', '#c0392b', '#0f9fb0', '#8a94a8'];
+const CORES = ['#2563EB', '#16A34A', '#C97A0A', '#7b4fd0', '#C0392B', '#22C3E6', '#8a94a8'];
 const abrev = v => Math.abs(v) >= 1e6 ? fnum(v / 1e6, 1) + ' mi' : Math.abs(v) >= 1e3 ? fnum(v / 1e3, 0) + ' mil' : fnum(v);
 function eixoY(max, W, H, pad) {
   const passo = Math.pow(10, Math.floor(Math.log10(max || 1)));
@@ -225,7 +225,7 @@ function graficoRosca(itens) {
   });
   const leg = itens.map((it, i) => `<div style="display:flex;justify-content:space-between;gap:14px"><span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${CORES[i % CORES.length]};margin-right:6px"></i>${esc(it.nome)}</span><b>${fnum(it.valor / total * 100, 0)}%</b></div>`).join('');
   return `<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap"><svg viewBox="0 0 200 200" width="190">${paths}
-    <text x="100" y="97" text-anchor="middle" font-size="12" fill="#6b7794">Total</text><text x="100" y="116" text-anchor="middle" font-size="15" font-weight="700" fill="#0b1f4d">${abrev(total)}</text></svg>
+    <text x="100" y="97" text-anchor="middle" font-size="12" fill="#6b7794">Total</text><text x="100" y="116" text-anchor="middle" font-size="15" font-weight="700" fill="#0B1F4D">${abrev(total)}</text></svg>
     <div style="flex:1;min-width:150px;font-size:13px;display:grid;gap:5px">${leg}</div></div>`;
 }
 const legenda = itens => `<div class="legend">${itens.map(([n, c]) => `<span><i style="background:${c}"></i>${esc(n)}</span>`).join('')}</div>`;
